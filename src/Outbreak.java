@@ -17,8 +17,50 @@ public class Outbreak {
      * Main calls this twice: with all costs equal to 1 (the line "Tests needed") and with the real costs ("Cheapest testing").
      */
     public static boolean[] cheapestTests(int n, int[][] nb, int[] cost) {
-        // TODO Mission 5a
-        return new boolean[n];
+        int[] parent = new int[n];
+        Arrays.fill(parent, -2);
+        int[] order = new int[n];
+        int orderSize = 1;
+        order[0] = 0;
+        parent[0] = -1;
+
+        for (int i = 0; i < orderSize; i++) {
+            int person = order[i];
+            for (int next : nb[person]) {
+                if (next == parent[person]) continue;
+                parent[next] = person;
+                order[orderSize++] = next;
+            }
+        }
+
+        long[] testedCost = new long[n];
+        long[] notTestedCost = new long[n];
+
+        for (int i = n - 1; i >= 0; i--) {
+            int person = order[i];
+            testedCost[person] = cost[person];
+
+            for (int child : nb[person]) {
+                if (parent[child] != person) continue;
+                testedCost[person] += Math.min(testedCost[child], notTestedCost[child]);
+                notTestedCost[person] += testedCost[child];
+            }
+        }
+
+        boolean[] tested = new boolean[n];
+        tested[0] = testedCost[0] <= notTestedCost[0];
+
+        for (int i = 1; i < n; i++) {
+            int person = order[i];
+            int p = parent[person];
+            if (!tested[p]) {
+                tested[person] = true;
+            } else {
+                tested[person] = testedCost[person] <= notTestedCost[person];
+            }
+        }
+
+        return tested;
     }
 
     /**
@@ -27,7 +69,45 @@ public class Outbreak {
      * Example: a line 0-1-2-3 has chain 3; a star with centre 0 and leaves 1, 2, 3 has chain 2.
      */
     public static int longestChain(int n, int[][] nb) {
-        // TODO Mission 5b
-        return -1;
+        int[] parent = new int[n];
+        Arrays.fill(parent, -2);
+        int[] order = new int[n];
+        int orderSize = 1;
+        order[0] = 0;
+        parent[0] = -1;
+
+        for (int i = 0; i < orderSize; i++) {
+            int person = order[i];
+            for (int next : nb[person]) {
+                if (next == parent[person]) continue;
+                parent[next] = person;
+                order[orderSize++] = next;
+            }
+        }
+
+        int[] depth = new int[n];
+        int longest = 0;
+
+        for (int i = n - 1; i >= 0; i--) {
+            int person = order[i];
+            int first = 0;
+            int second = 0;
+
+            for (int child : nb[person]) {
+                if (parent[child] != person) continue;
+                int branch = depth[child] + 1;
+                if (branch > first) {
+                    second = first;
+                    first = branch;
+                } else if (branch > second) {
+                    second = branch;
+                }
+            }
+
+            depth[person] = first;
+            longest = Math.max(longest, first + second);
+        }
+
+        return longest;
     }
 }
