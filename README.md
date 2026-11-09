@@ -1,8 +1,8 @@
 # Assignment 4. Patient Zero
 
-Student ID:
-Name:
-Group:
+Student ID: 252864
+Name: Yerdaulet Yerboluly
+Group: SE-2519
 
 This file is the report. Fill it in as you go. How to start: `START_HERE.md`. The task: `docs/Assignment4.pdf`.
 
@@ -10,15 +10,15 @@ This file is the report. Fill it in as you go. How to start: `START_HERE.md`. Th
 
 The 9 lines your program prints on your data (`java -cp out Main`):
 
-    Mutations:
-    Shared core:
-    Marker hits:
-    First hit:
-    Border length:
-    Shared words:
-    Tests needed:
-    Cheapest testing:
-    Longest chain:
+    Mutations: 75
+    Shared core: 926
+    Marker hits: 5
+    First hit: 12734
+    Border length: 4
+    Shared words: 388
+    Tests needed: 35
+    Cheapest testing: 149
+    Longest chain: 28
 
 My outbreak report (a screenshot of `output/outbreak.html`):
 
@@ -28,19 +28,19 @@ My outbreak report (a screenshot of `output/outbreak.html`):
 
 Answer in your own words, two or three sentences each.
 
-Mission 1. What does the cell d[i][j] of your table mean, and how is it computed from other cells?
+Mission 1. The cell d[i][j] is the smallest number of edits needed to turn the first i letters of A into the first j letters of B. I take the minimum of deletion from d[i-1][j], insertion from d[i][j-1], and replacement or matching from d[i-1][j-1].
 
-Mission 2. How is the longest common subsequence different from the longest common substring? My Shared core is bigger than the number of letters that are the same at the same place: why?
+Mission 2. A substring must be one continuous part, but a subsequence can skip letters while keeping their order. Shared core can be larger than the same-position count because insertions and deletions move matching letters to different positions.
 
-Mission 3. What does the prefix function tell you, and why does the pointer in the text never go back in KMP? What is the Border length of my marker and what does it mean?
+Mission 3. The prefix function stores the length of the longest proper prefix that is also a suffix for every marker prefix. On a mismatch KMP moves only the marker pointer using this table, so the text pointer never goes back. My border length is 4: the marker starts and ends with `TGCG`.
 
-Mission 4. Why must you compare the letters after the hashes are equal? What happens to the cost of Rabin-Karp if many windows have the same hash?
+Mission 4. Two different strings can have the same hash, so I compare all letters before counting a shared word. If many windows have the same hash, the program performs many extra comparisons and can lose the usual near-linear speed.
 
-Mission 5. What are the two states of a person in your DP, and how do you get the answer for a person from its children? Why does a greedy "test the person with most links first" not always give the cheapest answer?
+Mission 5. For each person I store the best answer when that person is tested and when they are not tested. If the person is not tested, all children must be tested; otherwise each child can use its cheaper state. A highest-degree greedy rule can fail because it ignores testing costs and the choices inside subtrees.
 
 ## AI use
 
-The syllabus requires you to say which AI tools you used and for what. Write the tool (ChatGPT, Copilot, other) and what you asked it: explain an idea, find an error, review code. Write "none" if you did not use any. If you took code or text from a book or a website, give the source here.
+I used ChatGPT to explain the algorithm ideas, help draft the implementations, review the code, and find errors. I read every method and checked it with the provided tests and my personal data.
 
 ## Timing (Mission 7)
 
@@ -48,11 +48,11 @@ Milliseconds, average of 3 runs, from `java -cp out Bench`.
 
 | test | size | time |
 |---|---|---|
-| naive search | 20 000 / 40 000 / 80 000 | |
-| KMP | 20 000 / 40 000 / 80 000 | |
-| edit distance | 500 / 1000 / 2000 / 4000 | |
+| naive search | 20 000 / 40 000 / 80 000 | 12.8 / 18.4 / 41.9 ms |
+| KMP | 20 000 / 40 000 / 80 000 | 3.1 / 1.4 / 1.5 ms |
+| edit distance | 500 / 1000 / 2000 / 4000 | 9.8 / 6.6 / 13.2 / 33.2 ms |
 
-What do the numbers say about how the time grows? When you double the size, by how much does each time grow? Two or three sentences.
+The naive search grows with the text size and has a much worse worst case than KMP, while KMP stays close to linear. Edit distance uses a two-dimensional table, so doubling both lengths should approach four times the work. JVM warm-up, garbage collection, and short measurements explain why the measured ratios are not exact.
 
 ## Complexity
 
@@ -60,11 +60,11 @@ n is the length of the text (or of a strain), m the length of the pattern, k the
 
 | algorithm | time | space | assumptions |
 |---|---|---|---|
-| Edit distance | | | |
-| LCS | | | |
-| Prefix function and KMP | | | |
-| Rabin-Karp (shared words) | | | |
-| Tree DP | | | |
+| Edit distance | O(nm) | O(nm) | full DP table |
+| LCS | O(nm) | O(nm) | full DP table |
+| Prefix function and KMP | O(n + m) | O(m + h) | h is the number of matches returned |
+| Rabin-Karp (shared words) | expected O(n), worst O(n^2 k) | O(n) | both strains have length O(n); hash collisions are verified |
+| Tree DP | O(v) | O(v) | the graph is a tree |
 
 ## Before you submit
 
